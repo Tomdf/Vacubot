@@ -34,41 +34,45 @@ Adafruit_NeoPixel leds = Adafruit_NeoPixel(LED_COUNT, PIN, NEO_GRB + NEO_KHZ800)
 Servo myservo;  // create servo object to control a servo 
 // a maximum of eight servo objects can be created 
 
-int pos = 0;    // variable to store the servo position 
-int color;
-int testColor = 0; // testing numbers fer fun and knowledge
+const char limitPin = 2;
+volatile boolean direct = false;
+unsigned int pos = 0;    // variable to store the servo position 
+unsigned long eyeColor;
 
 void setup()
 {
   Serial.begin(9600);
+  pinMode(limitPin, INPUT);
+  attachInterrupt(0, changeDirection, RISING);
   leds.begin();  // Call this to start up the LED strip.
   clearLEDs();   // This function, defined below, turns all LEDs off...
-  color = 0;
-  setColor(color,1);
+  eyeColor = 0;
+  setColor(eyeColor,1);
   myservo.attach(9);  // attaches the servo on pin 9 to the servo object
 }
 
 void loop()
 {
-  testColor += 1;
-  Serial.println(testColor,BIN);
-  for(pos = 50; pos < 140; pos += 1)  // goes from 0 degrees to 180 degrees 
-  {                                  // in steps of 1 degree 
-    myservo.write(pos);              // tell servo to go to position in variable 'pos' 
-    delay(15); 
-    color += 1;
-    setColor(color,1);    // waits 15ms for the servo to reach the position 
-    
-  } 
-  for(pos = 140; pos>=50; pos-=1)     // goes from 180 degrees to 0 degrees 
-  {                                
-    myservo.write(pos);              // tell servo to go to position in variable 'pos' 
-    delay(15);                       // waits 15ms for the servo to reach the position 
-    if (color > 0){
-      color -= 1;
-    }
-    setColor(color,1);    // waits 15ms for the servo to reach the position 
-    ;
+  Serial.println(eyeColor);
+  if (direct == true) {
+    pos = 20;
+  }
+  else {
+    pos = 160;
+  }
+  myservo.write(pos);
+  delay(15); 
+  eyeColor += 1;
+  setColor(eyeColor,1);
+}
+
+void changeDirection() {
+  static unsigned long last_interrupt_time = 0;
+  unsigned long interrupt_time = millis();
+  // If interrupts come faster than 200ms, assume it's a bounce and ignore
+  if (interrupt_time - last_interrupt_time > 600) 
+  {
+    direct = !direct; 
   }
 }
 
@@ -94,7 +98,5 @@ void clearLEDs()
     leds.setPixelColor(i, 0);
   }
 }
-
-
 
 
