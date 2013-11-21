@@ -53,12 +53,11 @@ void setup()
 
 void loop()
 {
-  Serial.println(eyeColor);
   if (direct == true) {
-    pos = 20;
+    pos = 70;
   }
   else {
-    pos = 160;
+    pos = 110;
   }
   myservo.write(pos);
   delay(15); 
@@ -67,13 +66,15 @@ void loop()
 }
 
 void changeDirection() {
+  myservo.write(90); // stop position
   static unsigned long last_interrupt_time = 0;
   unsigned long interrupt_time = millis();
   // If interrupts come faster than 200ms, assume it's a bounce and ignore
-  if (interrupt_time - last_interrupt_time > 600) 
-  {
-    direct = !direct; 
+  if (interrupt_time - last_interrupt_time > 200) {
+    direct = !direct;
   }
+  last_interrupt_time = interrupt_time;
+  Serial.println(direct);
 }
 
 void setColor(unsigned long color, byte brightness)
@@ -98,5 +99,6 @@ void clearLEDs()
     leds.setPixelColor(i, 0);
   }
 }
+
 
 
