@@ -54,10 +54,10 @@ void setup()
 void loop()
 {
   if (direct == true) {
-    pos = 70;
+    pos = 30;
   }
   else {
-    pos = 110;
+    pos = 150;
   }
   myservo.write(pos);
   delay(15); 
